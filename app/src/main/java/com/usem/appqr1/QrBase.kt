@@ -38,7 +38,7 @@ class QrBase : AppCompatActivity() {
     private fun initScanner() {
        val integrator = IntentIntegrator(this )
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES)
-        integrator.setPrompt("Coloca bien el código en el recuadro")
+        integrator.setPrompt("Coloca el código en el recuadro")
         integrator.setTorchEnabled(true)
         integrator.setBeepEnabled(true)
         integrator.initiateScan()
