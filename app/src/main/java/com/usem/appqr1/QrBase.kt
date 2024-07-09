@@ -14,93 +14,50 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.google.zxing.integration.android.IntentIntegrator
+import com.google.zxing.integration.android.IntentResult
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.usem.appqr1.databinding.ActivityQrBaseBinding
 
 
+
 class QrBase : AppCompatActivity() {
 
+    private  lateinit var binding: ActivityQrBaseBinding
 
-    private val requestPermissionLauncher: ActivityResultLauncher<String> =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                showCamera()
-            } else {
-                // Manejar el caso en el que el permiso no fue concedido
-            }
-        }
-    private val scanLauncher =
-        registerForActivityResult(ScanContract()) {
-                result: ScanIntentResult -> {
-            if(result.contents == null) {
-                Toast.makeText(this,"Cancelled",Toast.LENGTH_SHORT).show()
-            }else {
-                setResult(result.contents)
-            }
-        }
-        }
-
-    private lateinit var binding: ActivityQrBaseBinding
-    private fun setResult(string: String) {
-        binding.textResult.text = string
-    }
-
-    private fun showCamera() {
-        val options = ScanOptions()
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-        options.setPrompt("Scan QR code")
-        options.setCameraId(0)
-        options.setBeepEnabled(false)
-        options.setBarcodeImageEnabled(true)
-        options.setOrientationLocked(false)
-
-        scanLauncher.launch(options)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        initBinding()
-        initViews()
-
-        // Configura el layout
-        setContentView(binding.root)
-
-        setContentView(R.layout.activity_qr_base)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun initViews() {
-        binding.fab.setOnClickListener {
-            checkPermissionCamera(this)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun checkPermissionCamera(context: Context) {
-        val permission = android.Manifest.permission.CAMERA
-        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
-
-            showCamera()
-        } else if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-            Toast.makeText(context, "CAMERA permission required", Toast.LENGTH_SHORT).show()
-        }
-        else {
-            // Solicitar permiso
-            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-        }
-    }
-
-    private fun initBinding() {
         binding = ActivityQrBaseBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.buttonscan.setOnClickListener{ initScanner () }
+
+    }
+
+    private fun initScanner() {
+       val integrator = IntentIntegrator(this )
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES)
+        integrator.setPrompt("Coloca el código en el recuadro")
+        integrator.setTorchEnabled(true)
+        integrator.setBeepEnabled(true)
+        integrator.initiateScan()
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+        if (result != null){
+            if(result.contents == null){
+                Toast.makeText(this, "Cancelado", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(this, "El valor escaneado es: ${result.contents}", Toast.LENGTH_SHORT).show()
+
+            }
+        }else{
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+
     }
 }
-
