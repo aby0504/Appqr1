@@ -51,7 +51,7 @@ class AuthActivity : AppCompatActivity() {
             .addOnCompleteListener{
                 if (it.isSuccessful){
                     Toast.makeText(this,"Listo",Toast.LENGTH_LONG).show()
-                    val intent = Intent(this,QrBase :: class.java)
+                    val intent = Intent(this,InicioActivity:: class.java)
                     startActivity(intent)
 
                 }else{

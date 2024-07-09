@@ -61,6 +61,13 @@
         android:src="@drawable/qr_scan"
         app:layout_anchor="@id/bottomAppBar" />
 
+    <Button
+        android:id="@+id/buttonbuscar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#8BC34A"
+        android:gravity="center"
+        android:text="Buscar" />
 
 
 
